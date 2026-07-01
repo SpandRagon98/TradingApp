@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trading Assistant — Paper-First Dashboard</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">▮▮</span>
+        <div>
+          <h1>Intraday Trading Assistant</h1>
+          <p class="sub">Paper-first · Risk-managed · Educational</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span id="live-badge" class="badge badge-muted" title="WebSocket live feed">● offline</span>
+        <span id="mode-badge" class="badge badge-paper">PAPER</span>
+        <span id="broker-badge" class="badge badge-muted">broker: …</span>
+        <span id="api-badge" class="badge badge-muted">API: …</span>
+        <button id="kill-switch" class="kill" title="Halt all trading immediately">■ KILL SWITCH</button>
+      </div>
+    </header>
+
+    <div id="disclaimer" class="disclaimer">Loading disclaimer…</div>
+
+    <main>
+      <!-- KPI row -->
+      <section class="kpis" id="kpis">
+        <div class="kpi"><span class="kpi-label">Capital</span><span class="kpi-val" id="kpi-capital">—</span></div>
+        <div class="kpi"><span class="kpi-label">Day P&amp;L</span><span class="kpi-val" id="kpi-pnl">—</span></div>
+        <div class="kpi"><span class="kpi-label">Win rate</span><span class="kpi-val" id="kpi-winrate">—</span></div>
+        <div class="kpi"><span class="kpi-label">Trades today</span><span class="kpi-val" id="kpi-trades">—</span></div>
+        <div class="kpi"><span class="kpi-label">Daily loss used</span><span class="kpi-val" id="kpi-dll">—</span></div>
+      </section>
+
+      <div class="grid">
+        <!-- Left column: controls + signal -->
+        <section class="card">
+          <h2>Signal &amp; Paper Trade</h2>
+          <div class="controls">
+            <label>Symbol
+              <select id="symbol"></select>
+            </label>
+            <label>Strategy
+              <select id="strategy"></select>
+            </label>
+            <label>Interval
+              <select id="interval"></select>
+            </label>
+          </div>
+          <div class="btn-row">
+            <button id="btn-analyze" class="btn">Analyze</button>
+            <button id="btn-paper" class="btn btn-primary">Run Paper Trade</button>
+            <button id="btn-backtest" class="btn">Backtest (30d)</button>
+          </div>
+          <div id="signal-out" class="signal-out muted">Run an analysis to see a scored signal.</div>
+        </section>
+
+        <!-- Right column: risk -->
+        <section class="card">
+          <h2>Risk Status</h2>
+          <div id="risk-out" class="risk-out muted">Loading…</div>
+        </section>
+
+        <!-- Backtest -->
+        <section class="card span-2">
+          <h2>Backtest Result</h2>
+          <div id="backtest-out" class="muted">Run a backtest to see metrics and the equity curve.</div>
+        </section>
+
+        <!-- Paper trades -->
+        <section class="card span-2">
+          <h2>Paper Trades</h2>
+          <div id="trades-out" class="muted">No paper trades yet.</div>
+        </section>
+
+        <!-- Option chain -->
+        <section class="card span-2">
+          <h2>Option Chain <span class="tag">Black-Scholes · synthetic</span></h2>
+          <div class="controls">
+            <label>Index
+              <select id="oc-index">
+                <option>NIFTY</option><option>BANKNIFTY</option><option>FINNIFTY</option><option>SENSEX</option>
+              </select>
+            </label>
+            <label>Days to expiry <input id="oc-dte" type="number" value="3" min="0" step="1" /></label>
+            <button id="btn-chain" class="btn">Load Chain</button>
+          </div>
+          <div id="chain-analytics" class="muted"></div>
+          <div id="chain-out" class="muted">Load the chain to see CE/PE premiums, IV, OI, and analytics.</div>
+        </section>
+
+        <!-- Straddle builder + engines -->
+        <section class="card span-2">
+          <h2>Straddle Builder &amp; Paper Engine <span class="tag">paper-only</span></h2>
+          <div class="controls">
+            <label>Index
+              <select id="str-index">
+                <option>NIFTY</option><option>BANKNIFTY</option><option>FINNIFTY</option><option>SENSEX</option>
+              </select>
+            </label>
+            <label>Type
+              <select id="str-type"><option value="short">Short</option><option value="long">Long</option></select>
+            </label>
+            <label>Lots <input id="str-lots" type="number" value="1" min="1" /></label>
+            <label>Days to expiry <input id="str-dte" type="number" value="1" min="0" step="1" /></label>
+          </div>
+          <div class="btn-row">
+            <button id="btn-straddle" class="btn">Build (Greeks)</button>
+            <button id="btn-straddle-paper" class="btn btn-primary">Run Paper Trade</button>
+            <button id="btn-straddle-bt" class="btn">Backtest (60)</button>
+            <button id="btn-scanner" class="btn">9:20 Scanner</button>
+          </div>
+          <div id="straddle-out" class="muted">Build a straddle for Greeks/breakevens, or run a paper trade / backtest / 9:20 scanner.</div>
+        </section>
+
+        <!-- Alerts (live via WebSocket) -->
+        <section class="card span-2">
+          <h2>Alerts <span id="alerts-conn" class="tag">live feed</span>
+            <button id="btn-alert-test" class="btn" style="float:right;padding:4px 10px">Send test alert</button>
+          </h2>
+          <div id="alerts-out" class="muted">Waiting for events… (paper trades, stop/target hits, kill switch).</div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="foot">Phase 1 runnable core · synthetic data · no real orders. Configure Groww + enable live explicitly to go further.</footer>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

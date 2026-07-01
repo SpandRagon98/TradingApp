@@ -1,0 +1,22 @@
+{
+  "name": "trading-app-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Intraday trading assistant backend (paper-first, risk-managed).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch --disable-warning=ExperimentalWarning --env-file=.env src/server.js",
+    "start": "node --disable-warning=ExperimentalWarning --env-file=.env src/server.js",
+    "start:noenv": "node --disable-warning=ExperimentalWarning src/server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.15",
+    "ws": "^8.18.0"
+  }
+}

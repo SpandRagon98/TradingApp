@@ -1,0 +1,35 @@
+# Run the whole stack: `docker compose up --build`
+# Then open http://localhost:5180 (frontend → proxies /api & /ws to backend).
+#
+# NOTE: written and reviewed but NOT built in this environment (Docker isn't
+# installed here). Verify with `docker compose build` on a machine with Docker.
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      PORT: 8080
+      TRADING_MODE: paper        # paper-first; live stays triple-gated off
+      BROKER: mock               # set to "groww" + GROWW_ACCESS_TOKEN for live data
+      STORAGE: sqlite
+      CAPITAL: 50000
+      RISK_PER_TRADE_PCT: 1
+      MAX_DAILY_LOSS_PCT: 2
+      # GROWW_ACCESS_TOKEN: ${GROWW_ACCESS_TOKEN:-}   # supply via .env / secret
+      # TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID / SMTP_* for alerts (optional)
+    volumes:
+      - trading-data:/app/data   # persists the SQLite DB
+    ports:
+      - "8080:8080"              # optional: direct access to the API + served dashboard
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "5180:80"
+    restart: unless-stopped
+
+volumes:
+  trading-data:

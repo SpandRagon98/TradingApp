@@ -1,0 +1,71 @@
+# Continuous Integration for the Trading App.
+#
+# IMPORTANT — this is a CI pipeline, not a live deployment.
+# GitHub Actions runs a job and then EXITS; it cannot HOST a running server.
+# This app is a long-running Node backend + SQLite + WebSocket + a live broker
+# connection, so it must run on a machine you control (your PC, or a private
+# VPS/host), NOT inside a CI job. This workflow verifies every push builds and
+# passes tests, and produces the frontend build artifact.
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Backend — install & test
+        working-directory: backend
+        run: |
+          npm install
+          npm test
+
+      - name: Frontend — install & build
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          if-no-files-found: error
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # OPTIONAL DEPLOY (left disabled on purpose).
+  #
+  # If you later run this on a private host you control, add a deploy job here.
+  # Rules for a LIVE-MONEY app:
+  #   • Never expose it to the public internet without auth (AUTH_ENABLED=true),
+  #     HTTPS, a fixed APP_SECRET, and persistent storage for data/.
+  #   • Your Groww key/secret go in the HOST's env vars — never in the repo and
+  #     never in GitHub secrets that end up in client code.
+  #   • Gate deploys to the protected branch only.
+  #
+  # Example skeleton (uncomment & wire to your host):
+  #
+  # deploy:
+  #   needs: build-and-test
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Deploy to my host
+  #       env:
+  #         DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+  #       run: ./scripts/deploy.sh
+  # ───────────────────────────────────────────────────────────────────────────
