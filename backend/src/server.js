@@ -17,6 +17,7 @@ import { attachWebSocket } from './realtime/hub.js';
 import { storageKind } from './store.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const publicDir = join(__dirname, '..', 'public');
 const app = express();
 
 app.use(cors());
@@ -42,10 +43,14 @@ app.use('/api/auth', authRouter);
 app.use('/api', requireAuth, router);
 
 // Static dashboard.
-app.use(express.static(join(__dirname, '..', 'public')));
+app.use(express.static(publicDir));
 
 // 404 for unknown API routes.
 app.use('/api', (_req, res) => res.status(404).json({ ok: false, error: 'Not found' }));
+
+// React Router fallback. API requests are handled above, while every other GET
+// serves the SPA entry point so direct links such as /portfolio keep working.
+app.get('*', (_req, res) => res.sendFile(join(publicDir, 'index.html')));
 
 // Central error handler.
 app.use((err, _req, res, _next) => {
@@ -78,3 +83,4 @@ server.listen(config.port, () => {
     ws: `ws://localhost:${config.port}/ws`,
   });
 });
+

@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: tradingapp-spandragon98
+    runtime: docker
+    region: singapore
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: off
+    healthCheckPath: /api/health
+    maxShutdownDelaySeconds: 30
+    disk:
+      name: trading-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: STORAGE
+        value: sqlite
+      - key: TRADING_MODE
+        value: paper
+      - key: BROKER
+        value: mock
+      - key: ENABLE_LIVE_TRADING
+        value: 'false'
+      - key: AUTH_ENABLED
+        value: 'true'
+      - key: APP_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+

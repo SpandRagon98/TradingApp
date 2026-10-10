@@ -1,0 +1,10 @@
+.git
+.github
+app-analysis-report
+backend/data
+backend/node_modules
+frontend/dist
+frontend/node_modules
+node_modules
+npm-debug.log*
+

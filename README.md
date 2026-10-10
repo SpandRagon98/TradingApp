@@ -177,6 +177,28 @@ docker compose up --build      # backend :8080, frontend :5180 (nginx proxies /a
 volume. (The compose stack was authored but not built in the dev environment — run
 `docker compose build` on a machine with Docker to verify.)
 
+## Production deployment (Render)
+
+The root `Dockerfile` packages the React frontend, Node API, WebSocket endpoint,
+and SQLite storage as one deployable service. `render.yaml` provisions HTTPS,
+requires login, mounts persistent storage, and keeps the application in paper
+mode by default.
+
+1. Create a Render Blueprint from this repository and enter strong values for
+   `ADMIN_EMAIL` and `ADMIN_PASSWORD` when prompted.
+2. In the new Render service, copy **Settings → Deploy Hook**.
+3. In GitHub, create the Actions secret `RENDER_DEPLOY_HOOK_URL` with that value.
+4. Create the GitHub Actions variable `RENDER_DEPLOY_ENABLED=true` and set
+   `APP_URL` to the service's `https://…onrender.com` URL.
+5. Run **CI/CD** manually once, or push to `main`. The production environment on
+   the Actions run will then contain the live link.
+
+The Blueprint uses a paid Starter service because SQLite needs a persistent disk.
+Broker credentials remain server-side Render secrets and are intentionally not
+declared in source control. Do not enable real-money execution until the broker
+connection, authentication, stop-loss flow, and kill switch have been verified
+in paper mode.
+
 ## Alerts channels
 
 In-app + WebSocket always work. Optional, free, env-gated (silent no-op when unset):
@@ -242,3 +264,4 @@ No guaranteed-profit claims · paper-first default · live OFF by default · man
 stop-loss for sizing · daily-loss + consecutive-loss circuit breakers · kill switch ·
 naked short-straddle unlimited-risk warning + hedge/margin/confirmation requirements ·
 secret redaction in logs · no Groww scraping or UI automation.
+
