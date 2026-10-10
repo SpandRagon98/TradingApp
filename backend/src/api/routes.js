@@ -300,7 +300,13 @@ router.post('/live/prepare', (req, res) => {
   const candles = generateCandles(symbol, interval, 75, daySeed());
   const md = toMarketData(symbol, interval, candles);
   const signal = strat.generateSignal(md, {});
-  if (signal.type === 'NO_TRADE') return ok(res, { prepared: false, signal, reason: 'No actionable signal.' });
+  if (signal.type === 'NO_TRADE') {
+    return ok(res, {
+      prepared: false,
+      signal,
+      reason: signal.rejectionReason || 'The strategy conditions are not met right now.',
+    });
+  }
   const score = scoreSignal(signal, md);
   const validation = validateTrade(signal);
 
@@ -510,3 +516,4 @@ async function liveOrSyntheticCandles(symbol, interval, count, { exchange, segme
   }
   return { candles: generateCandles(symbol, interval, count, daySeed()), source: 'synthetic' };
 }
+
